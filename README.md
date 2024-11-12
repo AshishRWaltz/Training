@@ -1,2 +1,3 @@
 # Training
-Training Purpose Projects
+
+Training Purpose Projects.

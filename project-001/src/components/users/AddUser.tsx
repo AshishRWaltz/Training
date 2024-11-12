@@ -14,17 +14,34 @@ import { CgClose } from "react-icons/cg";
 const UserData = [...UsersData];
 
 const schema = yup.object().shape({
+  // id: yup.string().required("ID is required").uuid("Invalid UUID"),
   name: yup.string().required("Name is required"),
+  username: yup.string().required("Username is required"),
   phone: yup.string().required("Phone is required"),
-  address: yup.string().required("Address is required"),
-  birthdate: yup.string().required("Birthdate is required"),
-  isActive: yup.boolean().required("isActive is required"),
+  address: {
+    street: yup.string().required("Street is required"),
+    suite: yup.string().required("Suite is required"),
+    city: yup.string().required("City is required"),
+    zipcode: yup.string().required("Zipcode is required"),
+    geo: {
+      lat: yup.string().required("Latitude is required"),
+      lng: yup.string().required("Longitude is required"),
+    },
+  },
+  website: yup.string().required("Website is required"),
+  company: {
+    name: yup.string().required("Company name is required"),
+    catchPhrase: yup.string().required("Catch phrase is required"),
+    bs: yup.string().required("BS is required"),
+  },
   email: yup.string().email("Invalid email").required("Email is required"),
 });
 
-const AddUser: React.FC<AddUserProps> = ({ toggleAddUserModal }) => {
+const AddUser: React.FC<AddUserProps> = ({
+  handleAddUser,
+  toggleAddUserModal,
+}) => {
   const { id } = useParams();
-  const [user, setUser] = useState(UsersData.find((user) => user?.id === id));
 
   const {
     register,
@@ -32,29 +49,12 @@ const AddUser: React.FC<AddUserProps> = ({ toggleAddUserModal }) => {
     formState: { errors, isSubmitting },
   } = useForm<UserType>({
     resolver: yupResolver(schema),
-    defaultValues: {
-      ...user,
-    },
   });
 
-  const onSubmit = (data: UserType) => {
+  const onSubmit = async (data: UserType) => {
     console.log(data);
+    await handleAddUser(data);
   };
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/users/${id}`
-        );
-        console.log("User: ", response.data);
-        setUser(response?.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchUser();
-  }, [id]);
 
   return (
     <main className="relative  max-h-[70vh] overflow-y-auto">
@@ -80,83 +80,124 @@ const AddUser: React.FC<AddUserProps> = ({ toggleAddUserModal }) => {
             {...register("name")}
             type=""
             className="text-black border border-black px-2 py-2"
-            id={user?.name}
-            placeholder={user?.name}
+            placeholder="User Name"
           />
         </div>
         {errors.name && (
           <span className="text-red-600">**{errors.name.message}</span>
         )}
         <div className=" flex flex-col md:flex-row md:gap-4 items-center">
+          <label className="min-w-20">Username</label>
+          <input
+            {...register("username")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="Username"
+          />
+        </div>
+        {errors.username && (
+          <span className="text-red-600">**{errors.username.message}</span>
+        )}
+
+        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
+          <label className="min-w-20">Website</label>
+          <input
+            {...register("website")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="Website"
+          />
+        </div>
+        {errors.website && (
+          <span className="text-red-600">**{errors.website.message}</span>
+        )}
+
+        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
           <label className="min-w-20">Email</label>
           <input
             {...register("email")}
             type=""
             className="text-black border border-black px-2 py-2"
-            id={user?.email}
-            placeholder={user?.email}
+            placeholder="Email ID"
           />
         </div>
         {errors.email && (
           <span className="text-red-600">**{errors.email.message}</span>
         )}
+
         <div className=" flex flex-col md:flex-row md:gap-4 items-center">
           <label className="min-w-20">phone</label>
           <input
             {...register("phone")}
             type=""
             className="text-black border border-black px-2 py-2"
-            id={user?.phone}
-            placeholder={user?.phone}
+            placeholder="Phone Number"
           />
         </div>
         {errors.phone && (
           <span className="text-red-600">**{errors.phone.message}</span>
         )}
+
+        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
+          <label className="min-w-20">Company</label>
+          <input
+            {...register("company.name")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="Company Name"
+          />
+          <input
+            {...register("company.catchPhrase")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="Company Catch Phrase"
+          />
+          <input
+            {...register("company.bs")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="Company BS"
+          />
+        </div>
+        {errors.company && (
+          <span className="text-red-600">**{errors.company.message}</span>
+        )}
+
         <div className=" flex flex-col md:flex-row md:gap-4 items-center">
           <label className="min-w-20">Address</label>
           <input
-            {...register("address")}
+            {...register("address.street")}
             type=""
             className="text-black border border-black px-2 py-2"
-            id={user?.address}
-            placeholder={user?.address}
+            placeholder="Street"
+          />
+          <input
+            {...register("address.suite")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="Suite"
+          />
+          <input
+            {...register("address.city")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="City"
+          />
+          <input
+            {...register("address.zipcode")}
+            type=""
+            className="text-black border border-black px-2 py-2"
+            placeholder="Zipcode"
           />
         </div>
         {errors.address && (
           <span className="text-red-600">**{errors.address.message}</span>
         )}
-        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">BirthDay</label>
-          <input
-            {...register("birthdate")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            id={user?.birthdate}
-            placeholder={user?.birthdate}
-          />
-        </div>
-        {errors.birthdate && (
-          <span className="text-red-600">**{errors.birthdate.message}</span>
-        )}
-        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">Is Active ?</label>
-          <input
-            {...register("isActive")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder={user?.isActive ? "true" : "false"}
-          />
-        </div>
-
-        {errors.isActive && (
-          <span className="text-red-600">**{errors.isActive.message}</span>
-        )}
 
         {
           <section className="flex justify-end gap-4">
             <button type="submit" className="px-2 py-2 bg-gray-200">
-              Save
+              {isSubmitting ? "Adding..." : "Add User"}
             </button>
             <button
               type="button"

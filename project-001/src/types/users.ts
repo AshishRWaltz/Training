@@ -36,6 +36,7 @@ export interface UsersState {
 
 export interface AddUserProps {
     toggleAddUserModal: () => void;
+    handleAddUser: (user: User) => void;
 }
 
 export interface userGetResponse {

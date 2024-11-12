@@ -15,7 +15,7 @@ export const SimplePagination: React.FC<PaginationProps> = ({
   const [active, setActive] = React.useState(1);
 
   return (
-    <div className="flex items-center gap-8 w-full">
+    <div className="flex justify-center items-center gap-8 w-full">
       <IconButton
         size="sm"
         variant="outlined"

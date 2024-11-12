@@ -1,6 +1,7 @@
 import { ApiResponse } from "../types/api";
 import {
   User,
+  UserCreateResponse,
   UserDeleteResponse,
   userGetResponse,
   usersResponse,
@@ -23,17 +24,24 @@ const getUsers = async (
   );
   return { data: _response.data, status: "success", message: "All Users" };
 };
-const createUser = async (formData: User): Promise<ApiResponse<User>> => {
-  const _response = await axiosService.post<ApiResponse<User>>(
+const createUser = async (
+  formData: User
+): Promise<ApiResponse<UserCreateResponse>> => {
+  const _response = await axiosService.post<ApiResponse<UserCreateResponse>>(
     "/users/create-user",
     formData
   );
-  return _response.data;
+  return {
+    data: [],
+    status: "success",
+    message: "User created successfully",
+  };
 };
 
 const getUser = async (id: string): Promise<ApiResponse<userGetResponse>> => {
   const _response = await axiosService.get(`/users/${id}`);
-  return _response.data;
+  console.log(_response.data);
+  return { data: _response.data, status: "success", message: "User" };
 };
 
 const updateUser = async (

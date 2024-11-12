@@ -8,9 +8,8 @@ import AddUser from "../components/users/AddUser";
 import { CgAddR } from "react-icons/cg";
 import SearchBar from "../components/users/SearchBar";
 import { SimplePagination } from "../components/layout/PaginationComponent";
-
-// Logging user data
-console.log("Users Data:", usersDataJSON);
+import { User, usersResponse } from "../types/users";
+import { ApiResponse } from "../types/api";
 
 const Users: React.FC = () => {
   // Correctly initialize useState with usersDataJSON
@@ -30,7 +29,7 @@ const Users: React.FC = () => {
     currentSearch ? currentSearch : ""
   );
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const totoalPages = Math.max(Math.ceil(users?.length / limit), 1);
 
@@ -57,7 +56,7 @@ const Users: React.FC = () => {
   );
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 
-  const toggleConfiramationModal = (userId: string) => {
+  const toggleConfiramationModal = (userId: string | null) => {
     setSelectedUser(userId);
     setIsComfiramationModalOpen(!isComfiramationModalOpen);
   };
@@ -66,13 +65,41 @@ const Users: React.FC = () => {
     setIsAddUserModalOpen(!isAddUserModalOpen);
   };
 
+  const handleDeleteUser = async (userID: string) => {
+    try {
+      await UsersService.deleteUser(userID);
+      setUsers(users.filter((user: User) => user.id !== userID));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleAddUser = async (user: User) => {
+    try {
+      await UsersService.createUser(user);
+      setUsers([...users, user]);
+      toggleAddUserModal();
+    } catch (error) {
+      console.error(error);
+    }
+    toggleAddUserModal();
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       setUsersDataLoading(true);
       try {
-        const response = await UsersService.getUsers(limit, page, search);
+        const response: ApiResponse<usersResponse> = await UsersService.getUsers(
+          limit,
+          page,
+          search
+        );
         console.log("All Users: ", response.data);
-        setUsers(response?.data);
+        setUsers(
+          response?.data?.filter((user: User) => {
+            return user.name.toLowerCase().includes(search.toLowerCase());
+          })
+        );
         setUsersDataLoading(false);
       } catch (error) {
         console.error(error);
@@ -98,40 +125,42 @@ const Users: React.FC = () => {
       <SearchBar setSearchTerm={setSearch} />
       {usersDataLoading ? (
         <div className="flex items-center justify-center ">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
         </div>
       ) : (
-        <table className="table-auto">
+        <table className="table-auto w-full">
           <thead className="bg-gray-400 w-full">
             <tr>
               {/* <th>ID</th> */}
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Address</th>
-              <th>Birthday</th>
-              <th>Is Active?</th>
-              <th className="">Delete User</th>
-              <th className="">View</th>
+              <th className=" min-w-20">Name</th>
+              <th className=" min-w-20">Email</th>
+              <th className=" min-w-20">Phone</th>
+              <th className=" min-w-20">Address</th>
+              <th className=" min-w-20">Company</th>
+              <th className=" min-w-20">Delete User</th>
+              <th className=" min-w-20">View</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="w-full">
             {users?.length > 0 ? (
               users?.map((user) => (
-                <tr className=" even:bg-gray-300 border-b" key={user?.id}>
-                  {/* <td className="text-center ">{user?.id}</td> */}
-                  <td className="text-center ">{user?.name}</td>
-                  <td className="text-center ">{user?.email}</td>
-                  <td className="text-center ">{user?.phone}</td>
-                  <td className="text-center ">
+                <tr
+                  className=" even:bg-gray-300 border-b w-full"
+                  key={user?.id}
+                >
+                  {/* <td className="text-center min-w-40  ">{user?.id}</td> */}
+                  <td className="text-center min-w-40  ">{user?.name}</td>
+                  <td className="text-center min-w-40  ">{user?.email}</td>
+                  <td className="text-center min-w-40  ">{user?.phone}</td>
+                  <td className="text-center min-w-40  ">
                     {user?.address?.street}, {user?.address?.city},{" "}
-                    {user?.address?.country}, {user?.address?.zipcode}
+                    {user?.address?.city}, {user?.address?.zipcode}
                   </td>
-                  <td className="text-center ">{user?.birthdate}</td>
-                  <td className="text-center ">
-                    {user?.isActive ? "Yes" : "No"}
+                  <td className="text-center min-w-40  ">
+                    {user?.company?.name}
                   </td>
-                  <td className="text-center ">
+
+                  <td className="text-center min-w-40  ">
                     <button
                       onClick={() => toggleConfiramationModal(user?.id)}
                       className="text-center"
@@ -139,16 +168,16 @@ const Users: React.FC = () => {
                       <MdDelete />
                     </button>
                   </td>
-                  <td className="text-center ">
-                    <Link to={`/user/${user?.id}`}>
+                  <td className="text-center min-w-40  ">
+                    <Link className="text-center" to={`/user/${user?.id}`}>
                       <CiViewBoard />
                     </Link>
                   </td>
                 </tr>
               ))
             ) : (
-              <tr>
-                <td className="text-center" colSpan={8}>
+              <tr className="w-full">
+                <td className="text-center w-full " colSpan={8}>
                   No Users Found
                 </td>
               </tr>
@@ -183,10 +212,7 @@ const Users: React.FC = () => {
               </button>
               <button
                 className="px-4 py-2 bg-green-500 text-white rounded-md"
-                onClick={() => {
-                  toggleConfiramationModal(null);
-                  UsersService.deleteUser(selectedUser);
-                }}
+                onClick={() => handleDeleteUser(selectedUser)}
               >
                 Delete
               </button>
@@ -198,7 +224,10 @@ const Users: React.FC = () => {
       {isAddUserModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-4 rounded-md">
-            <AddUser toggleAddUserModal={toggleAddUserModal} />
+            <AddUser
+              handleAddUser={handleAddUser}
+              toggleAddUserModal={toggleAddUserModal}
+            />
           </div>
         </div>
       )}

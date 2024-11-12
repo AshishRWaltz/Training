@@ -8,46 +8,59 @@ import {
   UserUpdateResponse,
 } from "../types/users";
 import axiosService from "./axios.service";
-
 const getUsers = async (
   limit?: number,
   page?: number,
-  searchTerm?: string
+  searchTerm?: string,
+  order: string = "desc",
+  orderBy: string = "createdAt",
+  sortBy: string = "createdAt"
 ): Promise<ApiResponse<usersResponse>> => {
   const _limit = limit || 10;
   const _page = page || 1;
   const _searchTerm = searchTerm || "";
+  const _order = order;
+  const _orderBy = orderBy;
+  const _sortBy = sortBy;
+
   const _response = await axiosService.get(
     `users?page=${_page}&limit=${_limit}${
-      _searchTerm && "&name_eq=" + _searchTerm
+      _searchTerm && "&search=" + _searchTerm
+    }${_order && "&order=" + _order}${_orderBy && "&orderBy=" + _orderBy}${
+      _sortBy && "&sortBy=" + _sortBy
     }`
   );
-  return { data: _response.data, status: "success", message: "All Users" };
+
+  const _responseAllUsers = await axiosService.get(`/users`);
+
+  return {
+    data: _response.data,
+    status: "success",
+    message: "All Users",
+  };
 };
 const createUser = async (
   formData: User
 ): Promise<ApiResponse<UserCreateResponse>> => {
-  const _response = await axiosService.post<ApiResponse<UserCreateResponse>>(
-    "/users/create-user",
+  console.log(formData);
+  const response = await axiosService.post<ApiResponse<UserCreateResponse>>(
+    "/users",
     formData
   );
-  return {
-    data: [],
-    status: "success",
-    message: "User created successfully",
-  };
+  return response.data;
 };
 
-const getUser = async (id: string): Promise<ApiResponse<userGetResponse>> => {
-  const _response = await axiosService.get(`/users/${id}`);
-  console.log(_response.data);
-  return { data: _response.data, status: "success", message: "User" };
+const getUser = async (id: string): Promise<User> => {
+  const _response = await axiosService.get<User>(`/users/${id}`);
+  console.log("aaa", _response.data);
+  return _response.data;
 };
 
 const updateUser = async (
   id: string,
   _data: any
 ): Promise<ApiResponse<UserUpdateResponse>> => {
+  console.log("Data for user: ", id, " :", _data);
   const _response = await axiosService.put<ApiResponse<UserUpdateResponse>>(
     `/users/${id}`,
     {

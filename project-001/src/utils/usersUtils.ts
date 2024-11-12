@@ -13,6 +13,5 @@ export const formatName = (name: string | undefined): string => {
     });
 
     // Join the parts back together with spaces
-    console.log(formattedParts.join(" "))
     return formattedParts.join(" ");
 }

@@ -16,8 +16,6 @@ const axiosService = axios.create({
   },
 });
 
-console.log(ConfigService.apiBaseUrl(), axiosService.get("users"));
-
 axiosService.interceptors.request.use(
   (config) => {
     return config;

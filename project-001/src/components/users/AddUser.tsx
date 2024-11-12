@@ -1,40 +1,20 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import * as yup from "yup";
-
-import UsersData from "../../services/data.json";
-import { formatName } from "../../utils/usersUtils";
-import { BiEdit } from "react-icons/bi";
 import { AddUserProps, User as UserType } from "../../types/users";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CgClose } from "react-icons/cg";
 
-const UserData = [...UsersData];
-
 const schema = yup.object().shape({
   // id: yup.string().required("ID is required").uuid("Invalid UUID"),
-  name: yup.string().required("Name is required"),
-  username: yup.string().required("Username is required"),
+  lastName: yup.string().required("lastName is required"),
+  firstName: yup.string().required("First name is required"),
   phone: yup.string().required("Phone is required"),
-  address: {
-    street: yup.string().required("Street is required"),
-    suite: yup.string().required("Suite is required"),
-    city: yup.string().required("City is required"),
-    zipcode: yup.string().required("Zipcode is required"),
-    geo: {
-      lat: yup.string().required("Latitude is required"),
-      lng: yup.string().required("Longitude is required"),
-    },
-  },
-  website: yup.string().required("Website is required"),
-  company: {
-    name: yup.string().required("Company name is required"),
-    catchPhrase: yup.string().required("Catch phrase is required"),
-    bs: yup.string().required("BS is required"),
-  },
   email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup.string().required("Password is required"),
+  createdAt: yup.date(),
+  updatedAt: yup.date(),
 });
 
 const AddUser: React.FC<AddUserProps> = ({
@@ -46,9 +26,16 @@ const AddUser: React.FC<AddUserProps> = ({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<UserType>({
-    resolver: yupResolver(schema),
+    // resolver: yupResolver(schema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit = async (data: UserType) => {
@@ -75,41 +62,41 @@ const AddUser: React.FC<AddUserProps> = ({
         className="px-2 py-2  w-full flex flex-col gap-4"
       >
         <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">Name</label>
+          <label className="min-w-20">First Name</label>
           <input
-            {...register("name")}
+            {...register("firstName")}
             type=""
             className="text-black border border-black px-2 py-2"
-            placeholder="User Name"
+            placeholder=" First Name"
           />
         </div>
-        {errors.name && (
-          <span className="text-red-600">**{errors.name.message}</span>
+        {errors.firstName && (
+          <span className="text-red-600">**{errors.firstName.message}</span>
         )}
         <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">Username</label>
+          <label className="min-w-20">Last Name</label>
           <input
-            {...register("username")}
+            {...register("lastName")}
             type=""
             className="text-black border border-black px-2 py-2"
             placeholder="Username"
           />
         </div>
-        {errors.username && (
-          <span className="text-red-600">**{errors.username.message}</span>
+        {errors.lastName && (
+          <span className="text-red-600">**{errors.lastName.message}</span>
         )}
 
         <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">Website</label>
+          <label className="min-w-20">Password</label>
           <input
-            {...register("website")}
+            {...register("password")}
             type=""
             className="text-black border border-black px-2 py-2"
-            placeholder="Website"
+            placeholder="password"
           />
         </div>
-        {errors.website && (
-          <span className="text-red-600">**{errors.website.message}</span>
+        {errors.password && (
+          <span className="text-red-600">**{errors.password.message}</span>
         )}
 
         <div className=" flex flex-col md:flex-row md:gap-4 items-center">
@@ -123,75 +110,6 @@ const AddUser: React.FC<AddUserProps> = ({
         </div>
         {errors.email && (
           <span className="text-red-600">**{errors.email.message}</span>
-        )}
-
-        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">phone</label>
-          <input
-            {...register("phone")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="Phone Number"
-          />
-        </div>
-        {errors.phone && (
-          <span className="text-red-600">**{errors.phone.message}</span>
-        )}
-
-        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">Company</label>
-          <input
-            {...register("company.name")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="Company Name"
-          />
-          <input
-            {...register("company.catchPhrase")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="Company Catch Phrase"
-          />
-          <input
-            {...register("company.bs")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="Company BS"
-          />
-        </div>
-        {errors.company && (
-          <span className="text-red-600">**{errors.company.message}</span>
-        )}
-
-        <div className=" flex flex-col md:flex-row md:gap-4 items-center">
-          <label className="min-w-20">Address</label>
-          <input
-            {...register("address.street")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="Street"
-          />
-          <input
-            {...register("address.suite")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="Suite"
-          />
-          <input
-            {...register("address.city")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="City"
-          />
-          <input
-            {...register("address.zipcode")}
-            type=""
-            className="text-black border border-black px-2 py-2"
-            placeholder="Zipcode"
-          />
-        </div>
-        {errors.address && (
-          <span className="text-red-600">**{errors.address.message}</span>
         )}
 
         {

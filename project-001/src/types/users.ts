@@ -2,27 +2,14 @@ import { Dispatch, SetStateAction } from "react";
 import { PaginationResponse } from "./api";
 
 export interface User {
-    id: string;
-    name: string;
-    username: string;
+    id?: string;
+    firstName: string;
+    lastName: string;
     email: string;
-    phone: string;
-    address: {
-        street: string;
-        suite: string;
-        city: string;
-        zipcode: string;
-        geo: {
-            lat: string;
-            lng: string;
-        }
-    };
-    website: string;
-    company: {
-        name: string;
-        catchPhrase: string;
-        bs: string;
-    }
+    password: string;
+    createdAt?: string;
+    updatedAt?: string;
+    avatar?: string;
 }
 
 export interface UsersState {
@@ -96,4 +83,5 @@ export interface PaginationProps {
     prev: () => void;
     setPage: Dispatch<SetStateAction<number>>;
     setLimit: Dispatch<SetStateAction<number>>;
+    getItemProps: (index: number) => void;
 }

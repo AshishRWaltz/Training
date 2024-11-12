@@ -1,9 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
 import Layout from "./Layout";
-import User from "./pages/User";
 import Users from "./pages/Users";
-import CreateUser from "./pages/CreateUser";
+import UserItem from "./pages/User";
 
 const App: React.FC = () => {
   return (
@@ -11,7 +9,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Users />} />
-          <Route path="/user/:id" element={<User />} />
+          <Route path="/user/:id" element={<UserItem />} />
           <Route path="/users" element={<Users />} />
         </Route>
       </Routes>

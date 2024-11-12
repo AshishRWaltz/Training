@@ -10,23 +10,33 @@ import SearchBar from "../components/users/SearchBar";
 import { SimplePagination } from "../components/layout/PaginationComponent";
 import { User, usersResponse } from "../types/users";
 import { ApiResponse } from "../types/api";
+import { Alert, Spinner } from "../services/notiflix.service";
 
 const Users: React.FC = () => {
   // Correctly initialize useState with usersDataJSON
-
-  const [usersDataLoading, setUsersDataLoading] = useState<boolean>(false);
-
   const [searchParams, setSearchParams] = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
 
   const currentPage = params.get("page");
   const currentLimit = params.get("limit");
-  const currentSearch = params.get("name_eq");
+  const currentSearch = params.get("search");
+  const currentSortBy = params.get("sortBy");
+  const currentOrder = params.get("order");
+  const currentOrderBy = params.get("orderBy");
 
   const [page, setPage] = useState(currentPage ? Number(currentPage) : 1);
   const [limit, setLimit] = useState(currentLimit ? Number(currentLimit) : 10);
   const [search, setSearch] = useState<string>(
     currentSearch ? currentSearch : ""
+  );
+  const [sortBy, setSortBy] = useState<string>(
+    currentSortBy ? currentSortBy : "createdAt"
+  );
+  const [order, setOrder] = useState<string>(
+    currentOrder ? currentOrder : "desc"
+  );
+  const [orderBy, setOrderBy] = useState<string>(
+    currentOrderBy ? currentOrderBy : "createdAt"
   );
 
   const [users, setUsers] = useState<User[]>([]);
@@ -69,7 +79,9 @@ const Users: React.FC = () => {
     try {
       await UsersService.deleteUser(userID);
       setUsers(users.filter((user: User) => user.id !== userID));
+      Alert.info("User deleted successfully");
     } catch (error) {
+      Alert.error("Error deleting user");
       console.error(error);
     }
   };
@@ -79,7 +91,9 @@ const Users: React.FC = () => {
       await UsersService.createUser(user);
       setUsers([...users, user]);
       toggleAddUserModal();
+      Alert.success("User created successfully");
     } catch (error) {
+      Alert.error("Error creating user");
       console.error(error);
     }
     toggleAddUserModal();
@@ -87,28 +101,28 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      setUsersDataLoading(true);
+      Spinner.show();
       try {
+        console.log(limit, page, search, order, sortBy, orderBy);
         const response: ApiResponse<usersResponse> = await UsersService.getUsers(
           limit,
           page,
-          search
+          search,
+          order,
+          orderBy,
+          sortBy
         );
-        console.log("All Users: ", response.data);
-        setUsers(
-          response?.data?.filter((user: User) => {
-            return user.name.toLowerCase().includes(search.toLowerCase());
-          })
-        );
-        setUsersDataLoading(false);
+        setUsers(response?.data);
+        Spinner.hide();
       } catch (error) {
+        Alert.error("Error fetching users Data");
         console.error(error);
       }
-      setUsersDataLoading(false);
+      Spinner.hide();
     };
 
     fetchUsers();
-  }, [page, limit, search]);
+  }, [page, limit, search, order, orderBy, sortBy]);
 
   return (
     <main className="w-full bg-gray-200 ">
@@ -123,68 +137,61 @@ const Users: React.FC = () => {
         Add New User
       </button>
       <SearchBar setSearchTerm={setSearch} />
-      {usersDataLoading ? (
-        <div className="flex items-center justify-center ">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
-      ) : (
-        <table className="table-auto w-full">
-          <thead className="bg-gray-400 w-full">
-            <tr>
-              {/* <th>ID</th> */}
-              <th className=" min-w-20">Name</th>
-              <th className=" min-w-20">Email</th>
-              <th className=" min-w-20">Phone</th>
-              <th className=" min-w-20">Address</th>
-              <th className=" min-w-20">Company</th>
-              <th className=" min-w-20">Delete User</th>
-              <th className=" min-w-20">View</th>
-            </tr>
-          </thead>
-          <tbody className="w-full">
-            {users?.length > 0 ? (
-              users?.map((user) => (
-                <tr
-                  className=" even:bg-gray-300 border-b w-full"
-                  key={user?.id}
-                >
-                  {/* <td className="text-center min-w-40  ">{user?.id}</td> */}
-                  <td className="text-center min-w-40  ">{user?.name}</td>
-                  <td className="text-center min-w-40  ">{user?.email}</td>
-                  <td className="text-center min-w-40  ">{user?.phone}</td>
-                  <td className="text-center min-w-40  ">
-                    {user?.address?.street}, {user?.address?.city},{" "}
-                    {user?.address?.city}, {user?.address?.zipcode}
-                  </td>
-                  <td className="text-center min-w-40  ">
-                    {user?.company?.name}
-                  </td>
 
-                  <td className="text-center min-w-40  ">
-                    <button
-                      onClick={() => toggleConfiramationModal(user?.id)}
-                      className="text-center"
-                    >
-                      <MdDelete />
-                    </button>
-                  </td>
-                  <td className="text-center min-w-40  ">
-                    <Link className="text-center" to={`/user/${user?.id}`}>
-                      <CiViewBoard />
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr className="w-full">
-                <td className="text-center w-full " colSpan={8}>
-                  No Users Found
+      <table className="table-auto w-full">
+        <thead className="bg-gray-400 w-full">
+          <tr>
+            {/* <th>ID</th> */}
+            <th className=" min-w-20">Name</th>
+            <th className=" min-w-20">Email</th>
+            <th className=" min-w-20">Password</th>
+            <th className=" min-w-20">Created At</th>
+            <th className=" min-w-20">Updated At</th>
+            <th className=" min-w-20">Delete User</th>
+            <th className=" min-w-20">View</th>
+          </tr>
+        </thead>
+        <tbody className="w-full">
+          {users?.length > 0 ? (
+            users?.map((user) => (
+              <tr className=" even:bg-gray-300 border-b w-full" key={user?.id}>
+                {/* <td className="text-center min-w-40  ">{user?.id}</td> */}
+                <td className="text-center min-w-40  ">
+                  {user?.firstName} {user?.lastName}
+                </td>
+                <td className="text-center min-w-40  ">{user?.email}</td>
+                <td className="text-center min-w-40  ">{user?.password}</td>
+
+                <td className="text-center min-w-40  ">{user?.createdAt}</td>
+
+                <td className="text-center min-w-40  ">
+                  {user?.updatedAt ?? "-"}
+                </td>
+
+                <td className="text-center min-w-40  ">
+                  <button
+                    onClick={() => toggleConfiramationModal(user?.id)}
+                    className="text-center"
+                  >
+                    <MdDelete />
+                  </button>
+                </td>
+                <td className="text-center min-w-40  ">
+                  <Link className="text-center" to={`/user/${user?.id}`}>
+                    <CiViewBoard />
+                  </Link>
                 </td>
               </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+            ))
+          ) : (
+            <tr className="w-full">
+              <td className="text-center w-full " colSpan={8}>
+                No Users Found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
       <SimplePagination
         page={page}
@@ -194,6 +201,7 @@ const Users: React.FC = () => {
         prev={prev}
         setLimit={setLimit}
         setPage={setPage}
+        getItemProps={getItemProps}
       />
 
       {selectedUser && isComfiramationModalOpen && (

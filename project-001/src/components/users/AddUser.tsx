@@ -35,12 +35,14 @@ const AddUser: React.FC<AddUserProps> = ({
       lastName: "",
       email: "",
       password: "",
+      createdAt: "",
+      updatedAt: "",
     },
   });
 
   const onSubmit = async (data: UserType) => {
     console.log(data);
-    await handleAddUser(data);
+    await handleAddUser({ ...data, createdAt: new Date().toDateString() });
   };
 
   return (

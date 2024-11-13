@@ -50,7 +50,7 @@ const Users: React.FC = () => {
   });
 
   const next = () => {
-    if (page === 5) return;
+    if (page === 11) return;
     setPage(page + 1);
     console.log(page + 1);
   };

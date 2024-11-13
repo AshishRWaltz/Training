@@ -7,6 +7,8 @@ import { User } from "../types/users";
 import { useForm } from "react-hook-form";
 import UsersService from "../services/users.service";
 import { Alert, Spinner } from "../services/notiflix.service";
+import { avatar } from "@material-tailwind/react";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const schema = yup.object().shape({
   // id: yup.string().required("ID is required").uuid("Invalid UUID"),
@@ -14,8 +16,6 @@ const schema = yup.object().shape({
   firstName: yup.string().required("First name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   password: yup.string().required("Password is required"),
-  // createdAt: yup.date(),
-  // updatedAt: yup.date(),
 });
 
 const UserItem: React.FC = () => {
@@ -24,6 +24,9 @@ const UserItem: React.FC = () => {
     lastName: "",
     email: "",
     password: "",
+    avatar: "",
+    createdAt: "",
+    updatedAt: "",
   };
   const paramsPassed = useParams();
 
@@ -42,9 +45,9 @@ const UserItem: React.FC = () => {
     setValue,
     reset,
 
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, isDirty, isSubmitted },
   } = useForm({
-    // resolver: yupResolver(schema),
+    resolver: yupResolver(schema),
     defaultValues: defaultValues,
   });
   useEffect(() => {
@@ -65,12 +68,15 @@ const UserItem: React.FC = () => {
       }
     };
     fetchUserData();
-  }, [userId]);
+  }, [userId, setUser, reset]);
 
   const onSubmit = async (data) => {
     Spinner.show();
     try {
-      await UsersService.updateUser(userId, data);
+      await UsersService.updateUser(userId, {
+        ...data,
+        updatedAt: new Date().toString(),
+      });
       Alert.success("Successfully Updated the User Data");
     } catch (error) {
       console.error(error);
@@ -81,7 +87,7 @@ const UserItem: React.FC = () => {
   };
 
   return (
-    <main className="">
+    <main className="px-4 py-4">
       <header className="">{}</header>
       {!isEditable && (
         <button
@@ -171,10 +177,30 @@ const UserItem: React.FC = () => {
           <span className="text-red-500">{errors.password.message}</span>
         )}
 
+        <div className="flex gap-4 items-center">
+          <label className="min-w-40">Created At</label>
+          <input
+            {...register("createdAt")}
+            type="text"
+            disabled={true}
+            className="border border-black rounded px-2 py-2"
+          />
+        </div>
+
+        <div className="flex gap-4 items-center">
+          <label className="min-w-40">Updated At</label>
+          <input
+            {...register("updatedAt")}
+            type="text"
+            disabled={true}
+            className="border border-black rounded px-2 py-2"
+          />
+        </div>
+
         {isEditable && (
           <section className="flex gap-4 flex-row">
             <button
-              disabled={!isDirty && isSubmitting}
+              disabled={!isDirty}
               type="submit"
               className="bg-green-500 rounded-sm px-4 py-2 text-white"
             >

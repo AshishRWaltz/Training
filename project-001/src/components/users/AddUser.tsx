@@ -14,7 +14,7 @@ const schema = yup.object().shape({
   email: yup.string().email("Invalid email").required("Email is required"),
   password: yup.string().required("Password is required"),
   createdAt: yup.date(),
-  updatedAt: yup.date(),
+  updatedat: yup.date(),
 });
 
 const AddUser: React.FC<AddUserProps> = ({
@@ -36,7 +36,7 @@ const AddUser: React.FC<AddUserProps> = ({
       email: "",
       password: "",
       createdAt: "",
-      updatedAt: "",
+      updatedat: "",
     },
   });
 

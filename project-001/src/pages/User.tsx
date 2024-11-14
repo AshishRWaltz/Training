@@ -26,7 +26,7 @@ const UserItem: React.FC = () => {
     password: "",
     avatar: "",
     createdAt: "",
-    updatedAt: "",
+    updatedat: "",
   };
   const paramsPassed = useParams();
 
@@ -75,7 +75,7 @@ const UserItem: React.FC = () => {
     try {
       await UsersService.updateUser(userId, {
         ...data,
-        updatedAt: new Date().toString(),
+        updatedat: new Date().toString(),
       });
       Alert.success("Successfully Updated the User Data");
     } catch (error) {
@@ -190,7 +190,7 @@ const UserItem: React.FC = () => {
         <div className="flex gap-4 items-center">
           <label className="min-w-40">Updated At</label>
           <input
-            {...register("updatedAt")}
+            {...register("updatedat")}
             type="text"
             disabled={true}
             className="border border-black rounded px-2 py-2"

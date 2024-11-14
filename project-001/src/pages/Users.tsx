@@ -30,13 +30,13 @@ const Users: React.FC = () => {
     currentSearch ? currentSearch : ""
   );
   const [sortBy, setSortBy] = useState<string>(
-    currentSortBy ? currentSortBy : "createdAt"
+    currentSortBy ? currentSortBy : "createdat"
   );
   const [order, setOrder] = useState<string>(
     currentOrder ? currentOrder : "desc"
   );
   const [orderBy, setOrderBy] = useState<string>(
-    currentOrderBy ? currentOrderBy : "createdAt"
+    currentOrderBy ? currentOrderBy : "createdat"
   );
 
   const [users, setUsers] = useState<User[]>([]);
@@ -162,10 +162,10 @@ const Users: React.FC = () => {
                 <td className="text-center min-w-40  ">{user?.email}</td>
                 <td className="text-center min-w-40  ">{user?.password}</td>
 
-                <td className="text-center min-w-40  ">{user?.createdAt}</td>
+                <td className="text-center min-w-40  ">{user?.createdat}</td>
 
                 <td className="text-center min-w-40  ">
-                  {user?.updatedAt ?? "-"}
+                  {user?.updatedat ?? "-"}
                 </td>
 
                 <td className="text-center min-w-40  ">

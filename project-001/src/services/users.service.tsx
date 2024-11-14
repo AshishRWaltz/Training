@@ -13,8 +13,8 @@ const getUsers = async (
   page?: number,
   searchTerm?: string,
   order: string = "desc",
-  orderBy: string = "createdAt",
-  sortBy: string = "createdAt"
+  orderBy: string = "createdat",
+  sortBy: string = "createdat"
 ): Promise<ApiResponse<usersResponse>> => {
   const _limit = limit || 10;
   const _page = page || 1;

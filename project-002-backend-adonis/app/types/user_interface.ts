@@ -17,13 +17,13 @@ export interface UsersDataResponse {
 }
 
 export interface ListCriteria {
-    id?: number
+    id: number
     limit: number
     page: number
     search: string
     sortby: string
-    orderby: 'asc' | 'desc'
-    order: string
+    orderby: string
+    order: 'asc' | 'desc'
 }
 
 export interface AddUserData {
@@ -32,8 +32,8 @@ export interface AddUserData {
     lastName: string
     email: string
     password: string
-    createdat: DateTime
-    updatedat?: DateTime | null
+    createdAt: DateTime
+    updatedAt?: DateTime | null
 }
 
 export interface UserDetailsResponse {
@@ -42,8 +42,16 @@ export interface UserDetailsResponse {
     message: string
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T> {
     status: 'success' | 'failure'
     data?: T
     message: string
+}
+
+export interface UserProfileUpdateData {
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    password: string
 }

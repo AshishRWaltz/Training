@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 // import type { HttpContext } from '@adonisjs/core/http'
 
-import ResponseService from "#services/response.service";
-import UsersService from "#services/users.service";
+import ResponseService from "#services/response_service";
+import UsersService from "#services/users_service";
 import { HttpContext } from "@adonisjs/core/http";
-import { AddUserData, User, UsersDataResponse } from "../types/users.js";
+import { AddUserData, ListCriteria } from "../types/user_interface.js";
 import { inject } from "@adonisjs/core";
 
 @inject()
@@ -28,11 +28,11 @@ export default class UsersController {
      *
      * @returns {ApiResponse<UsersDataResponse>}
      */
-    async getUsers({ request, response }: HttpContext) {
+    async list({ request, response }: HttpContext) {
 
         try {
             const queryString = request.all()
-            const criteria = {
+            const criteria: ListCriteria = {
                 order: queryString?.order || "desc",
                 sortby: queryString?.sortby || 'createdat',
                 orderby: queryString?.orderby || 'desc',
@@ -41,21 +41,25 @@ export default class UsersController {
                 search: queryString?.search || ''
             }
 
-            return (await this.userService.list(criteria))
+            const activityResponse = await this.userService.list(criteria);
+            return this.responseService.sendResponse(response, activityResponse);
+
         } catch (error) {
-            console.error(error)
-            return response.status(500).send({ status: 'failure', message: 'Error fetching users' })
+            this.responseService.buildLogger('error', error);
+
+            return this.responseService.sendResponse(response, this.responseService.buildFailure('Error Fetching Users Data'));
         }
     }
+
 
 
     async getUser({ request, response }: HttpContext) {
         try {
             const userId = request.param('id');
-            return await this.userService.list({ limit: 1, page: 1, search: '', order: 'desc', orderby: 'createdat', sortby: 'createdat', id: userId })
+            return await this.userService.list({ limit: 1, page: 1, search: '', order: 'desc', orderby: 'createdAt', sortby: 'createdAt', id: userId });
         } catch (error) {
-            console.error(error)
-            return response.status(500).send({ status: 'failure', message: 'Error fetching user' })
+            console.error(error);
+            return response.status(500).send({ status: 'failure', message: 'Error fetching user' });
         }
     }
 
@@ -76,6 +80,7 @@ export default class UsersController {
     async updateUser({ request, response }: HttpContext) {
 
         try {
+
             const userId = request.param('id');
             const data = request.all() as AddUserData
             return this.userService.update(userId, data as any)

@@ -1,5 +1,8 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import ResponseService from '#services/response_service'
+import { errors } from '@vinejs/vine';
+import { ApiResponse } from '../types/response_interface.js';
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -13,6 +16,17 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    const responseService = new ResponseService()
+    if (error instanceof errors.E_VALIDATION_ERROR) {
+      let errorData: ApiResponse
+      if (error.messages.length > 0) {
+        errorData = responseService.buildFailure(error.messages[0].message, error.messages[0])
+      } else {
+        errorData = responseService.buildFailure(error.messages[0].message, error.messages[0])
+      }
+      ctx.response.status(422).send(errorData)
+      return
+    }
     return super.handle(error, ctx)
   }
 

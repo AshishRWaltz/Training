@@ -33,6 +33,7 @@ export default class UsersController {
         try {
             const queryString = request.all()
             const criteria: ListCriteria = {
+                id: queryString?.id || 0,
                 order: queryString?.order || "desc",
                 sortby: queryString?.sortby || 'createdat',
                 orderby: queryString?.orderby || 'desc',
@@ -51,9 +52,14 @@ export default class UsersController {
         }
     }
 
-
-
-    async getUser({ request, response }: HttpContext) {
+    /**
+     * Retrieves user details by user ID.
+     *
+     * @param {HttpContext} ctx - The HTTP context containing request and response objects.
+     * @returns {Promise<ApiResponse<UsersDataResponse>>} - A promise that resolves with the user data or an error message.
+     * @throws Will return a 500 status code if an error occurs during fetching.
+     */
+    async show({ request, response }: HttpContext) {
         try {
             const userId = request.param('id');
             return await this.userService.list({ limit: 1, page: 1, search: '', order: 'desc', orderby: 'createdAt', sortby: 'createdAt', id: userId });
@@ -63,34 +69,36 @@ export default class UsersController {
         }
     }
 
+    /**
+     * Handles POST /users API endpoint. Creates a new user.
+     *
+     * @param {HttpContext} ctx
+     * @property {AddUserData} ctx.request.body - User data
+     *
+     * @returns {ApiResponse<UsersDataResponse>}
+     */
 
-    async createUser({ request, response }: HttpContext) {
+    async store({ request, response }: HttpContext) {
         try {
             const data = request.all() as AddUserData
-            return this.userService.create(data)
-
-
-
+            return this.userService.create(data);
         } catch (error) {
             console.log(error)
             return response.status(500).send({ status: 'failure', message: 'Error creating user' })
         }
     }
 
-    async updateUser({ request, response }: HttpContext) {
-
+    async update({ request, response }: HttpContext) {
         try {
-
-            const userId = request.param('id');
             const data = request.all() as AddUserData
-            return this.userService.update(userId, data as any)
+            return this.userService.update(data as any)
         } catch (error) {
             console.error(error)
             return response.status(500).send({ status: 'failure', message: 'Error updating user' })
         }
     }
 
-    async deleteUser({ request, response }: HttpContext) {
+    async delete({ request, response }: HttpContext) {
         try {
             const userId = request.param('id');
             return this.userService.delete(userId)

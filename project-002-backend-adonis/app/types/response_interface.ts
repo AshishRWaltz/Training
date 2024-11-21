@@ -1,15 +1,15 @@
 export interface ResponseOptions {
-    overrideHttpCode?: number
+  overrideHttpCode?: number
 }
 
 export interface ApiResponse<T = any> {
-    status: 'success' | 'failure'
-    data?: T
-    message: string
+  status: 'success' | 'failure'
+  data?: T
+  message: string
 }
 
 export interface ValidationMessage {
-    message: string
+  message: string
 }
 
 export type ValidationMessages = ValidationMessage[] | string

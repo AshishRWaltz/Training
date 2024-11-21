@@ -1,8 +1,8 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import ResponseService from '#services/response_service'
-import { errors } from '@vinejs/vine';
-import { ApiResponse } from '../types/response_interface.js';
+import { errors } from '@vinejs/vine'
+import { ApiResponse } from '../types/response_interface.js'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**

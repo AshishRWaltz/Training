@@ -38,3 +38,8 @@ export const http = defineConfig({
     sameSite: 'lax',
   },
 })
+
+export const ROLES = {
+  ADMIN: 'admin',
+  USER: 'user',
+}

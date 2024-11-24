@@ -39,7 +39,10 @@ export const http = defineConfig({
   },
 })
 
+export const credentxAppName: string = ' CredentX'
+export const tokenExpiryTime: string = '1 day'
 export const ROLES = {
   ADMIN: 'admin',
   USER: 'user',
 }
+

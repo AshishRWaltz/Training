@@ -1,9 +1,18 @@
 import AuthService from '#services/auth_services'
 import ResponseService from '#services/response_service'
-import { forgotPasswordValidator, loginValidator, registerValidator, resetPasswordValidator } from '#validators/auth'
-import { ForgotPasswordData, LoginData, RegisterData, ResetPasswordData } from '../types/auth_interface.js'
-import { HttpContext } from '@adonisjs/core/http'
+import { forgotPasswordValidator, loginValidator, resetPasswordValidator } from '#validators/auth'
+import { inject } from '@adonisjs/core'
 
+import {
+  ForgotPasswordData,
+  LoginData,
+  RegisterData,
+  ResetPasswordData,
+} from '../types/auth_interface.js'
+import { HttpContext } from '@adonisjs/core/http'
+import User from '#models/user'
+
+@inject()
 export default class AuthController {
   /**
    * Dependency injection constructor
@@ -40,6 +49,7 @@ export default class AuthController {
 
   async login({ request, response }: HttpContext) {
     const data = request.all() as LoginData
+
     await request.validateUsing(loginValidator)
 
     // Check if the route is for an admin or regular user
@@ -47,7 +57,7 @@ export default class AuthController {
 
     try {
       const activityResponse = await this.authService.login(data, isAdminRoute)
-
+      console.log("activityResponse", activityResponse)
       if (activityResponse.status === 'failure') {
         if (activityResponse.data && activityResponse.data.respCode) {
           return this.responseService.sendResponse(response, activityResponse, {
@@ -70,8 +80,10 @@ export default class AuthController {
   async logout({ response, auth }: HttpContext) {
     try {
       const activityResponse = await this.authService.logout(auth)
+      console.log('activityResponse', activityResponse)
       return this.responseService.sendResponse(response, activityResponse)
     } catch (error) {
+      console.error(error)
       return this.responseService.sendResponse(
         response,
         this.responseService.buildFailure(
@@ -82,12 +94,12 @@ export default class AuthController {
     }
   }
 
+
   async forgotPassword({ request, response }: HttpContext) {
     await request.validateUsing(forgotPasswordValidator)
 
     // Check if the route is for an admin or regular user
     const isAdminRoute = request.url().includes('admin')
-
     try {
       const activityResponse = await this.authService.forgotPassword(
         request.all() as ForgotPasswordData,
@@ -117,7 +129,10 @@ export default class AuthController {
       }
       const isAdminRoute = request.url().includes('admin')
 
-      const activityResponse = await this.authService.verifyToken(params.token, isAdminRoute)
+      const activityResponse = await this.authService.verifyToken(
+        params.token,
+        isAdminRoute
+      )
       return this.responseService.sendResponse(response, activityResponse)
     } catch (error) {
       this.responseService.buildLogger('error', error)

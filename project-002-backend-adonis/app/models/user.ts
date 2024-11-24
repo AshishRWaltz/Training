@@ -50,7 +50,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare isAdmin: boolean
 
-  static accessTokens = DbAccessTokensProvider.forModel(User)
+  static accessTokens = DbAccessTokensProvider.forModel(User, { table: 'auth_access_tokens' })
 
   @manyToMany(() => Role, {
     pivotTable: 'user_role',

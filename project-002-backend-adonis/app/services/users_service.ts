@@ -119,16 +119,18 @@ export default class UsersService {
     }
   }
 
-  async addUser(data: AddUserData, auth: Authenticator<Authenticators>): Promise<ApiResponse> {
+  async addUser(data: AddUserData,
+    // auth: Authenticator<Authenticators>
+  ): Promise<ApiResponse> {
     const trx = await db.transaction()
     // Retrieve the currently authenticated user and load their associated roles
-    const activeUser = auth.user as User
+    // const activeUser = auth.user as User
     let userRole: any = await Role.findBy('slug', ROLES.USER)
 
     // Check if the authenticated user's account is active; if not, return a failure response
-    if (!activeUser?.isActive) {
-      return this.responseService.buildFailure('Account is temporarily suspended')
-    }
+    // if (!activeUser?.isActive) {
+    //   return this.responseService.buildFailure('Account is temporarily suspended')
+    // }
     // Verify if the provided email is already associated with an existing user
     const emailExists = await User.query().where('email', data.email).first()
 
@@ -169,7 +171,7 @@ export default class UsersService {
     try {
       const user = await User.query()
         .select(['id', 'first_name', 'last_name', 'email', 'password', 'created_at', 'updated_at'])
-        .where('id', criteria.id)
+        // .where('id', criteria.id)
         .first()
 
       if (!user) {
@@ -211,8 +213,6 @@ export default class UsersService {
       user.last_name = data.last_name
       user.email = data.email
       user.password = data.password
-      user.created_at = data.created_at
-      user.updated_at = null
 
       // Save the user to the database
       await user.save()
@@ -288,11 +288,13 @@ export default class UsersService {
 
     // If the route is for admin but the user is not an admin
     if (isAdminRoute && !isUserAdmin) {
+      console.log("Not admin  but admin route")
       return this.responseService.buildFailure('Only Admin can perform this action from here.')
     }
 
     // If the route is not for admin but the user is an admin
     if (!isAdminRoute && isUserAdmin) {
+      console.log("Not admin route but admin")
       return this.responseService.buildFailure('Only User can perform this action from here.')
     }
 

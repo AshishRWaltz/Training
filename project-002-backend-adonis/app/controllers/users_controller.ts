@@ -82,11 +82,11 @@ export default class UsersController {
    * @returns {ApiResponse<UsersDataResponse>}
    */
 
-  async addUser({ request, response, auth }: HttpContext) {
+  async addUser({ request, response }: HttpContext) {
     const data = request.all() as AddUserData
     await request.validateUsing(createUserValidator)
     try {
-      const activityResponse = await this.userService.addUser(data, auth)
+      const activityResponse = await this.userService.addUser(data)
 
       if (activityResponse.status === 'failure') {
         if (activityResponse.data && activityResponse.data.respCode) {
